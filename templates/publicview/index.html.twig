@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Big Events{% endblock %}
+
+{% block body %}
+    <div class="row mt-4 mb-3">
+        <div class="col-md-10 offset-md-1">
+            <h2 class="text-danger"><i class="fas fa-theater-masks"></i> Events in Vienna</h2>
+            <p class="text-danger">Search over 10000 Events in Vienna</p>
+            {% if app.user %}<a class="btn btn-danger" href="{{ path('event_new') }}"><i class="far fa-plus-square"></i> Create new event</a>{% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1 text-center">
+            <a href="#" class="btn btn-white btn-sm text-danger text-uppercase my-2"><i class="fas fa-map-marked-alt fa-2x"></i><br>Map</a>
+            <a href="#" class="btn btn-white btn-sm text-danger text-uppercase my-2"><i class="fas fa-info fa-2x"></i><br>Info</a>
+            <a href="#" class="btn btn-white btn-sm text-danger text-uppercase my-2"><i class="fas fa-bed fa-2x"></i><br>Hotels</a>
+            <a href="#" class="btn btn-white btn-sm text-danger text-uppercase my-2"><i class="fas fa-theater-masks fa-2x"></i><br>Events</a>
+            <span class="d-block d-sm-none mb-4">
+                {% if not app.user %}
+                    <a class="btn btn-danger mx-1 " href="/login">Login</a>
+                    <a class="btn btn-danger mx-1" href="/register">Register</a>
+                {% endif %}
+                {% if app.user %}<a class="btn btn-danger btn-lg mx-1" href="/logout">logout</a>{% endif %}
+            </span>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Main Content -->
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Due to COVID-19, cultural and leisure facilities such as museums, zoos, amusement parks, theaters, concert halls, cinemas and cabarets, as well as all restaurants and hotels are currently closed until the beginning of December.</p>
+                </div>
+            </div>
+
+            {% if searchterm %}
+            <div class="row">
+                <div class="col-md-6 offset-md-3 alert alert-warning text-center">
+                    These are the results of the search term <strong>{{searchterm}}</strong>.<br/><a href="/" type="button" class="btn btn-danger btn-sm m-2">Reset Search</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row mb-5">
+
+                {% for event in events %}
+                    <div class="col-md-4 p-2">
+
+                        <img src="{{ asset(event.image) }}" class="img-fluid rounded-lg my-2" alt="{{ event.name }}" data-toggle="modal" data-target="#eventModal{{ event.id }}"/>
+                        <p><a href="/search?search=type&term={{ event.type }}" class="badge badge-danger">{{ event.type }}</a></p>
+                        <h4 class="font-weight-normal"><a href="#" class="text-danger text-decoration-none" data-toggle="modal" data-target="#eventModal{{ event.id }}">{{ event.name }}</a></h4>
+                        <p>{{ event.datetime ? event.datetime|date('D, M j, Y, H:i') : '' }} Hr.</p>
+                        <p>{{ event.address }}</p>
+
+
+                        <div class="modal fade" id="eventModal{{ event.id }}" tabindex="-1" aria-labelledby="eventModal{{ event.id }}Label" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="eventModal{{ event.id }}Label">{{ event.name }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <img src="{{ asset(event.image) }}" class="img-fluid rounded-lg my-2" alt="{{ event.name }}"/>
+                                        <h4 class="font-weight-normal">{{ event.name }}</h4>
+                                        <h5><span class="badge badge-danger">{{ event.type }}</span></h5>
+                                        <p><strong>Event ID: {{ event.id }}</strong></p>
+                                        <p><strong>Date &amp; Time:</strong> {{ event.datetime ? event.datetime|date('D, M j, Y, H:i') : '' }} Hr.</p>
+                                        <p><strong>Location:</strong> {{ event.address }}</p>
+                                        <p><strong>Email address:</strong> {{ event.email }}</p>
+                                        <p><strong>Phone number:</strong> {{ event.phone }}</p>
+                                        <p><strong>Website:</strong> <a href="{{ event.url }}" target="_blank">{{ event.url }}</a></p>
+                                        <p><strong>Description:</strong></p>
+                                        <p>{{ event.description }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        
+                                            <a href="{{ path('event_show', {'id': event.id}) }}" class="btn btn-danger">Details Page</a>
+                                            {% if app.user %}
+                                                <a href="{{ path('event_edit', {'id': event.id}) }}" class="btn btn-primary">Edit Event</a>
+                                            {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <p>
+                            <a href="{{ path('event_show', {'id': event.id}) }}" class="btn btn-danger btn-sm m-1">Details Page</a>
+                            {% if app.user %}
+                                <a href="{{ path('event_edit', {'id': event.id}) }}" class="btn btn-primary btn-sm m-1">Edit Event</a>
+                            {% endif %}
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="col-md-12">
+                        <h3 class="text-danger text-center">No records found</h3>
+                    </div>
+                {% endfor %}
+
+            </div>
+            <!-- End Main Content -->
+        </div>
+
+        <div class="col-md-3">
+            <div class="alert alert-secondary p-4" role="alert">
+                <h4 class="text-danger">Filter by Type</h4>
+
+                <div class="dropdown mb-4">
+                    <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Event Types
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <a href="/search?search=type&term=Ballet" class="dropdown-item" type="button">Ballet</a>
+                        <a href="/search?search=type&term=Music" class="dropdown-item" type="button">Music</a>
+                        <a href="/search?search=type&term=Opera" class="dropdown-item" type="button">Opera</a>
+                        <a href="/search?search=type&term=Sport" class="dropdown-item" type="button">Sport</a>
+                    </div>
+                </div>
+
+                <h4 class="text-danger">Downloads</h4>
+                <p><a href="#" class="text-decoration-none text-danger"><i class="fas fa-file-pdf"></i> Program October-December 2020</a></p>
+                <p><a href="#" class="text-decoration-none text-danger"><i class="fas fa-file-pdf"></i> Event-Highlights 2020/21</a></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
