@@ -17,7 +17,7 @@ class SearchFilterController extends AbstractController
     */
     public function search_filter(Request $request, EventRepository $eventRepository): Response
     {
-        $searchterm = $request->getParameter('term');
+        $searchterm =  $request->query->get('term');
 
         return $this->render('publicview/index.html.twig', [
             'searchterm' => $searchterm,
